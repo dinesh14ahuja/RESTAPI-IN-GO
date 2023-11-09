@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,11 +12,29 @@ import (
 func main() {
 
 	router := gin.Default()
-	router.GET("/getRequest", getData)
+
+	auth := gin.BasicAuth(gin.Accounts{
+		"user": "pass",
+	})
+	adminGroup := router.Group("/admin", auth)
+	adminGroup.GET("/getRequest", getData)
+
+	clientGroup := router.Group("/client")
+	clientGroup.GET("/getRequestQuery", getRequestQuery)
+
 	router.POST("/postRequest", postRequest)
-	router.GET("/getRequestQuery", getRequestQuery)
+
 	router.GET("/getRequestParam/:name/:age", getRequestParam)
-	router.Run()
+	//router.Run()
+
+	server := &http.Server{
+		Addr:         ":8081",
+		Handler:      router,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
+	server.ListenAndServe()
 
 }
 
