@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"restapi/middleware"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 func main() {
 
 	router := gin.Default()
+	router.Use(middleware.Authenticate, middleware.ResponseMiddleware)
 
 	auth := gin.BasicAuth(gin.Accounts{
 		"user": "pass",
